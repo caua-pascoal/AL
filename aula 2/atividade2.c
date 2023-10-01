@@ -9,7 +9,7 @@
 int buscaMelhoradaNaLista ( int **l, int n, int x );
 int buscaBinariaNaLista ( int **l, int inicio, int fim, int x );
 int buscarSeEstiverNaLista ( int **l, int n, int x );
-void bubbleSort ( int *** l, int n );
+void bubbleSort ( int ** l, int n );
 
 void main () {
     /* Inicialização da lista */
@@ -28,7 +28,7 @@ void main () {
 
     /* 2.4) Bubble Sort */
     printf("Reordenando a lista...\n");
-    bubbleSort ( &lista, N );
+    bubbleSort ( lista, N );
 
     imprimirLista( lista, N );
     
@@ -80,15 +80,14 @@ int buscaMelhoradaNaLista ( int **l, int n, int x ) {
 
 /* Atualmente ela quebra se o elemento não estiver na lista */
 int buscaBinariaNaLista ( int **l, int inicio, int fim, int x ) {
-    int meio = inicio + ( (fim - inicio) / 2 );
+    int meio = ( inicio + fim ) / 2;
     int valor_meio = *(l[meio]);
 
-    if( x == valor_meio)
-        return meio;
+    if( l[meio] == NULL || x < valor_meio )
+        return buscaBinariaNaLista(l, inicio, meio-1, x);
     if( x > valor_meio)
-        return buscaBinariaNaLista(l, meio, fim, x);
-    if( x < valor_meio)
-        return buscaBinariaNaLista(l, inicio, meio, x);
+        return buscaBinariaNaLista(l, meio+1, fim, x);
+    return meio;
 }
 
 int buscarSeEstiverNaLista ( int **l, int n, int x ) {
@@ -99,14 +98,14 @@ int buscarSeEstiverNaLista ( int **l, int n, int x ) {
     }
 }
 
-void bubbleSort ( int *** l, int n ) {
-    int i, j, aux;
-    for( i = 0; i < n; i++ ) {
-        for( j = 1; j < n - i; j++) {
-            if( *((*l)[j-1]) > *((*l)[j]) ) {
-                aux = *((*l)[j]);
-                *((*l)[j]) = *((*l)[j-1]);
-                *((*l)[j-1]) = aux;
+void bubbleSort ( int ** l, int n ) {
+    int i, j, aux, qtd_elementos = elementosNaLista( l, n );
+    for( i = 0; i < qtd_elementos; i++ ) {
+        for( j = 1; j < qtd_elementos - i; j++) {
+            if( *(l[j-1]) > *(l[j]) ) {
+                aux = *(l[j]);
+                *(l[j]) = *(l[j-1]);
+                *(l[j-1]) = aux;
             }
         }
     }
