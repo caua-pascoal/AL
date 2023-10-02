@@ -13,14 +13,6 @@ struct Tfila {
 */
 #include "filaFuncoes.c"
 
-void criarFila       ( struct Tfila *f, int n );
-void eliminarFila    ( struct Tfila *f );
-int  elementosNaFila ( struct Tfila f );
-int  buscarNaFila    ( struct Tfila f, int x );
-int  inserirNaFila   ( struct Tfila *f, int x );
-int  excluirDaFila   ( struct Tfila *f );int  mod             ( int x, int m );
-
-
 void main () {
 
     /* Inicialização da fila */
@@ -42,11 +34,10 @@ void main () {
     int qtd_elementos = elementosNaFila( fila );
     printf("Quantidade de elementos inicialmente: %d \n", qtd_elementos);
 
-    // /* Excluindo elemento */
+    /* Excluindo elemento */
     // /**
     //  * Em fila não se escolhe o elemento a excluir -> FIFO ( First In First Out )
     // */
-
     int elemento_sendo_excluido = fila.vetor[fila.frente];
 
     excluirDaFila( &fila );
@@ -59,75 +50,18 @@ void main () {
     /* Retaguarda dando volta na fila */
     inserirNaFila( &fila, 12 );
 
-    // /* Busca do elemento excluido */
-    // int indice_encontrado = buscarNaFila( fila, elemento_sendo_excluido );
-    // char * mensagem = 
-    //     indice_encontrado != -1 ? 
-    //         "Índice do elemento '%d' na fila: %d \n" :
-    //         "Elemento '%d' não encontrado na fila (%d) \n";
-    // printf(mensagem, elemento_sendo_excluido, indice_encontrado);
+    /* Busca do elemento excluido */
+    int indice_encontrado = buscarNaFila( fila, elemento_sendo_excluido );
+    char * mensagem = 
+        indice_encontrado != -1 ? 
+            "Índice do elemento '%d' na fila: %d \n" :
+            "Elemento '%d' não encontrado na fila (%d) \n";
+    printf(mensagem, elemento_sendo_excluido, indice_encontrado);
 
-    // /* Liberando espaços de memória utilizados */
-    // printf("Apagando fila...");
-    // eliminarFila( &fila );
+    /* Liberando espaços de memória utilizados */
+    printf("Apagando fila...");
+    eliminarFila( &fila );
 
     /* Pulo de linha para distanciar dados exibidos do resto do output padrão */
     printf("\n\n\n\n\n\n\n");
 }
-
-void criarFila ( struct Tfila *f, int n ) {
-    f->tamanho = n;
-    f->frente = f->retaguarda = -1;
-    f->vetor = ( int * ) malloc( sizeof( int[n] ) );
-}
-
-void eliminarFila ( struct Tfila *f ) {
-    f->tamanho = 0;
-    f->frente = f->retaguarda = -1;
-    free( f->vetor );
-}
-
-int elementosNaFila ( struct Tfila f ) {
-    if( f.frente == -1 ) return 0; // Somente quando vazio frente e retaguarda serão -1
-    return 1 + mod(f.retaguarda - f.frente, f.tamanho);
-}
-
-int inserirNaFila ( struct Tfila *f, int x ) {
-    int aux = mod( f->retaguarda + 1, f->tamanho);
-
-    if( aux == f->frente ) return -1; // Overflow
-    if( buscarNaFila( *f, x ) != -1 ) return 0; // Elemento já existe
-
-    f->retaguarda = aux;
-    f->vetor[f->retaguarda] = x;
-    if ( f->frente == -1 ) f->frente++;
-    return 1;
-}
-
-int buscarNaFila ( struct Tfila f, int x ) {
-    int i, posicao, qtd_elementos = elementosNaFila( f );
-    if( qtd_elementos == 0 ) return -1; // Fila vazia
-
-    for ( i = f.frente; i < qtd_elementos; i++ ) {
-        posicao = mod( i, f.tamanho );
-        if( f.vetor[ posicao ] == x ) return posicao;
-    }
-    return -1; // Não encontrado
-}
-
-int excluirDaFila ( struct Tfila *f ) {
-    int qtd_elementos = elementosNaFila( *f );
-    if( qtd_elementos == 0 ) return -1; // Underflow
-    if( qtd_elementos == 1 ) {
-        f->frente = -1;
-        f->retaguarda = -1;
-    } else {
-        f->frente = mod(f->frente + 1, f->tamanho);
-    }    
-    return 1;
-}
-
-int mod ( int x, int m ) {
-    return x%m < 0 ? x%m+m : x%m;
-}
-
