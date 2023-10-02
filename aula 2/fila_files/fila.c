@@ -18,9 +18,7 @@ void eliminarFila    ( struct Tfila *f );
 int  elementosNaFila ( struct Tfila f );
 int  buscarNaFila    ( struct Tfila f, int x );
 int  inserirNaFila   ( struct Tfila *f, int x );
-int  excluirDaFila   ( struct Tfila *f );
-void imprimirFila    ( struct Tfila f );
-int  mod             ( int x, int m );
+int  excluirDaFila   ( struct Tfila *f );int  mod             ( int x, int m );
 
 
 void main () {
@@ -36,25 +34,30 @@ void main () {
     inserirNaFila( &fila, 5 );
     inserirNaFila( &fila, 6 );
     inserirNaFila( &fila, 7 );
-    inserirNaFila( &fila, 8 );
 
-    imprimirFila( fila );
+    /* Tentando adicionar um elemento a mais */
+    printf("%d\n", inserirNaFila( &fila, 8 ));
 
-    // /* Quantidade de elementos */
-    // int qtd_elementos = elementosNaFila( fila );
-    // printf("Quantidade de elementos inicialmente: %d \n", qtd_elementos);
+    /* Quantidade de elementos */
+    int qtd_elementos = elementosNaFila( fila );
+    printf("Quantidade de elementos inicialmente: %d \n", qtd_elementos);
 
     // /* Excluindo elemento */
     // /**
     //  * Em fila não se escolhe o elemento a excluir -> FIFO ( First In First Out )
     // */
 
-    // int elemento_sendo_excluido = fila.vetor[fila.topo]; || Ajeitar
+    int elemento_sendo_excluido = fila.vetor[fila.frente];
 
-    // excluirDaFila( &fila );
-    // printf("Removendo o elemento '%d' da fila.\n", elemento_sendo_excluido);
+    excluirDaFila( &fila );
+    printf("Removendo o elemento '%d' da fila.\n", elemento_sendo_excluido);
 
-    // imprimirFila( fila );
+    /* Avançando frente */
+    excluirDaFila( &fila );
+    excluirDaFila( &fila );
+
+    /* Retaguarda dando volta na fila */
+    inserirNaFila( &fila, 12 );
 
     // /* Busca do elemento excluido */
     // int indice_encontrado = buscarNaFila( fila, elemento_sendo_excluido );
@@ -86,23 +89,18 @@ void eliminarFila ( struct Tfila *f ) {
 
 int elementosNaFila ( struct Tfila f ) {
     if( f.frente == -1 ) return 0; // Somente quando vazio frente e retaguarda serão -1
-    if( f.retaguarda >= f.frente ) return f.retaguarda - f.frente + 1;
-    if( f.frente > f.retaguarda ) return (f.tamanho - f.frente) + (f.retaguarda + 1);
+    return 1 + mod(f.retaguarda - f.frente, f.tamanho);
 }
 
 int inserirNaFila ( struct Tfila *f, int x ) {
-    int qtd_elementos = elementosNaFila( *f );
+    int aux = mod( f->retaguarda + 1, f->tamanho);
 
-    if( qtd_elementos == f->tamanho ) return -1; // Overflow
+    if( aux == f->frente ) return -1; // Overflow
     if( buscarNaFila( *f, x ) != -1 ) return 0; // Elemento já existe
 
-    if( qtd_elementos == 0) {
-        f->retaguarda = 0;
-        f->frente = 0;
-    } else {
-        f->retaguarda = mod(f->retaguarda + 1, f->tamanho);
-        f->vetor[f->retaguarda] = x;
-    }
+    f->retaguarda = aux;
+    f->vetor[f->retaguarda] = x;
+    if ( f->frente == -1 ) f->frente++;
     return 1;
 }
 
@@ -110,8 +108,8 @@ int buscarNaFila ( struct Tfila f, int x ) {
     int i, posicao, qtd_elementos = elementosNaFila( f );
     if( qtd_elementos == 0 ) return -1; // Fila vazia
 
-    for ( i = 0; i < qtd_elementos; i++ ) {
-        posicao = mod( f.frente + i, f.tamanho );
+    for ( i = f.frente; i < qtd_elementos; i++ ) {
+        posicao = mod( i, f.tamanho );
         if( f.vetor[ posicao ] == x ) return posicao;
     }
     return -1; // Não encontrado
@@ -129,19 +127,7 @@ int excluirDaFila ( struct Tfila *f ) {
     return 1;
 }
 
-void imprimirFila ( struct Tfila f ) {
-    int i, qtd_elementos = elementosNaFila( f );
-    
-    printf("Fila: |");
-    for( i = 0; i < f.tamanho; i++ ) {
-        if( f.frente <= i && i <= f.retaguarda )
-            printf(" %d |", f.vetor[i]);
-        else
-            printf(" N |");
-    }
-}
-
 int mod ( int x, int m ) {
-    return x%m;
+    return x%m < 0 ? x%m+m : x%m;
 }
 
